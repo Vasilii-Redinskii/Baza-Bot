@@ -64,7 +64,11 @@ def get_interval(level, column, **kwargs):
                 merge_cell.get('startRowIndex') < cell_row <= merge_cell.get('endRowIndex') and \
                 merge_cell.get('startRowIndex') != merge_cell.get('endRowIndex')-1:
             start_cell = f'R{merge_cell.get("startRowIndex")+1}C{merge_cell.get("endColumnIndex")+1}'
-            finish_cell = f'R{merge_cell.get("endRowIndex")}C{merge_cell.get("endColumnIndex")+1}'
+            # Check how many rows are in the merged cell as different count is needed
+            if (merge_cell.get('endRowIndex') - merge_cell.get('startRowIndex')) % 2 != 0:
+                finish_cell = f'R{merge_cell.get("endRowIndex")}C{merge_cell.get("endColumnIndex")+1}'
+            else:
+                finish_cell = f'R{merge_cell.get("endRowIndex")+1}C{merge_cell.get("endColumnIndex") + 1}'
             merge_interval = f'{start_cell}:{finish_cell}'
             values_interval = sheet.values().get(spreadsheetId=SHEET_ID, range=merge_interval).execute()
             value_dict['interval'] = [values_interval.get('range'), merge_interval]

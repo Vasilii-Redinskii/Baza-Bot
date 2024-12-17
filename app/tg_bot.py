@@ -33,6 +33,7 @@ async def handle_callback(call):
         user_id = call.from_user.id
         bot_handler = BotHandler(user_id, bot)
         bot_handler.local_dict['call'] = call
+        bot_handler.save_state()
         if call.message:
             # buttons of cells in first colon
             if call.data in bot_handler.main_list:
@@ -46,7 +47,7 @@ async def handle_callback(call):
                     bot_handler.choose_section(call.message)
                 else:
                     prev_element = bot_handler.step_list[int(call.data.split()[1])]
-                    bot_handler.go_cur_level(prev_element)
+                    bot_handler.go_cur_level(call.message.chat.id, prev_element)
             else:
                 bot.send_message(call.message.chat.id, 'Нет информации об объекте, начните сначала', reply_markup=None)
 
@@ -88,8 +89,8 @@ async def handle_welcome(message):
         bot.reply_to(message, f'Привет! Я бот - твой помощник. \n\n'
                               f'Для того чтобы начать с главного меню, нажми кнопку "📝 Начало".\n\n'
                               # f'Выбери нужный раздел и перейди в него, нажми кнопку "✅ Принять".\n\n'
-                              f'Вернуться на предыдущий раздел или отменить выбор, нажми кнопку "🔙 Назад".\n\n',
-                              # f'Для обновления меня в нужном разделе, нажми кнопку "🔄 Обновить".'
+                              f'Вернуться на предыдущий раздел или отменить выбор, нажми кнопку "🔙 Назад".\n\n'
+                              f'Для обновления меня в нужном разделе, нажми кнопку "🔄 Обновить".',
                               reply_markup=markup)
 
     except Exception as e:

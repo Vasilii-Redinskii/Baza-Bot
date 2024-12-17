@@ -62,24 +62,23 @@ class BotHandler:
             return []
 
     # go to current level
-    def go_cur_level(self, value):
+    def go_cur_level(self, chat_id, value):
         try:
             self.local_dict = value
             markup = types.InlineKeyboardMarkup(row_width=2)
             markup.add(*self.create_button_list(value.get('interval_values')))
-            self.bot.send_message(value.get('call').message.chat.id, value.get('name_level'), reply_markup=markup)
+            self.bot.send_message(chat_id, value.get('name_level'), reply_markup=markup)
             self.save_state()
         except Exception as e:
             log_expect(f"Error transition to current level: {e}")
-            self.bot.send_message(call.message.chat.id, 'Нет информации об объекте, начните сначала', reply_markup=None)
+            self.bot.send_message(chat_id, 'Нет информации об объекте, начните сначала', reply_markup=None)
 
     # Check cells and go to previous level
     def go_prev_level(self, message):
         try:
             prev_level_list = []
             for index, step in enumerate(self.step_list):
-                if step.get('call'):
-                    prev_level_list.append(f'{INDEX} {index} - {step.get("name_level")}')
+                prev_level_list.append(f'{INDEX} {index} - {step.get("name_level")}')
             prev_level_list.append(f'{INDEX} - {MAIN_MENU}')
             markup = types.InlineKeyboardMarkup(row_width=2)
             markup.add(*self.create_button_list(prev_level_list))
@@ -98,7 +97,7 @@ class BotHandler:
                 self.local_dict = new_interval
                 self.step_list.append(new_interval)
                 if len(new_interval.get('interval_values')) != 0:
-                    markup = types.InlineKeyboardMarkup(row_width=2)
+                    markup = types.InlineKeyboardMarkup()
                     markup.add(*self.create_button_list(new_interval.get('interval_values')))
                     self.bot.send_message(call.message.chat.id, new_interval.get('name_level'), reply_markup=markup)
                 else:
@@ -166,3 +165,7 @@ class BotHandler:
         new_user = User(user_id=self.user_id, username=username, first_name=first_name, last_name=last_name)
         session.add(new_user)
         session.commit()
+
+    def clean(self):
+        pass
+
