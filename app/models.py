@@ -105,14 +105,45 @@ class BotHandler:
             elif new_interval.get('type_level') == 'Text':
                 if len(new_interval.get('interval_values')) != 0:
                     if new_interval.get('picture'):
-                        photo_file = open(download_file_from_gdrive(new_interval.get('picture')), 'rb')
-                        self.bot.send_photo(call.message.chat.id, photo=photo_file)
-                    self.bot.send_message(call.message.chat.id, new_interval.get('interval_values')[0], reply_markup=None)
+                        try:
+                            photo_file = open(download_file_from_gdrive(new_interval.get('picture')), 'rb')
+                            self.bot.send_photo(call.message.chat.id, photo=photo_file)
+                        except:
+                            pass
+                    markup = types.InlineKeyboardMarkup()
+                    markup.add(*self.create_button_list(["Next"]))
+                    self.bot.send_message(call.message.chat.id, new_interval.get('interval_values')[0],
+                                          reply_markup=markup)
                 else:
                     self.bot.send_message(call.message.chat.id, 'Нет информации об объекте, начните сначала',
                                           reply_markup=None)
             else:
                 self.choose_section(call.message)
+            self.save_state()
+
+        except Exception as e:
+            log_expect(f"Error when go to the next level: {e}")
+            self.bot.send_message(call.message.chat.id, 'Нет информации об объекте, начните сначала', reply_markup=None)
+
+    # Check cells and go to next row
+    def go_next_row(self, call, row):
+        try:
+            new_interval = get_interval(call.data, self.local_dict.get('next_col'), row=row+1)
+            self.local_dict['cell_row'] = row+1
+            if len(new_interval.get('interval_values')) != 0:
+                if new_interval.get('picture'):
+                    try:
+                        photo_file = open(download_file_from_gdrive(new_interval.get('picture')), 'rb')
+                        self.bot.send_photo(call.message.chat.id, photo=photo_file)
+                    except:
+                        pass
+                markup = types.InlineKeyboardMarkup()
+                markup.add(*self.create_button_list(["Next"]))
+                self.bot.send_message(call.message.chat.id, new_interval.get('interval_values')[0],
+                                      reply_markup=markup)
+            else:
+                self.bot.send_message(call.message.chat.id, 'Нет информации об объекте, начните сначала',
+                                      reply_markup=None)
             self.save_state()
 
         except Exception as e:

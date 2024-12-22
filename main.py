@@ -12,8 +12,8 @@ from app.tg_bot import bot
 server = Flask(__name__)
 
 # Constant to choose webhook or polling, webhook for production
-# worp = 'polling'
-worp = 'webhook'
+worp = 'polling'
+# worp = 'webhook'
 
 
 if worp == 'polling':

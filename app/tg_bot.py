@@ -48,6 +48,8 @@ async def handle_callback(call):
                 else:
                     prev_element = bot_handler.step_list[int(call.data.split()[1])]
                     bot_handler.go_cur_level(call.message.chat.id, prev_element)
+            elif call.data == 'Next':
+                bot_handler.go_next_row(call, bot_handler.local_dict.get('cell_row'))
             else:
                 bot.send_message(call.message.chat.id, 'Нет информации об объекте, начните сначала', reply_markup=None)
 
