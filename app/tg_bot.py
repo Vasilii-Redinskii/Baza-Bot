@@ -37,11 +37,12 @@ async def handle_callback(call):
         if call.message:
             # buttons of cells in first colon
             if call.data in bot_handler.main_list:
-                bot_handler.go_next_level(call)
+                bot_handler.go_next_level(call, merge_list=bot_handler.merge_list)
             # buttons of cells in this colon
             elif call.data in bot_handler.local_dict.get('interval_values'):
                 new_row = bot_handler.local_dict.get('cell_row') + bot_handler.local_dict.get('interval_values').index(call.data)
-                bot_handler.go_next_level(call, bot_handler.local_dict.get('next_col'), row=new_row)
+                bot_handler.go_next_level(call, bot_handler.local_dict.get('next_col'), row=new_row,
+                                          merge_list=bot_handler.merge_list)
             elif call.data.split() and (call.data.split()[0] == INDEX):
                 if call.data == f'{INDEX} - {MAIN_MENU}':
                     bot_handler.choose_section(call.message)

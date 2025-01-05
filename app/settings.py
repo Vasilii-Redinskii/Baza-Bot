@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 CREDENTIALS = {
   "type": "service_account",
@@ -28,6 +29,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive']
 SCOPES_SHEET = ['https://www.googleapis.com/auth/spreadsheets']
 SHEET_ID = os.getenv("SHEET_ID", "")
 SHEET_URL = os.getenv("SHEET_URL", "")
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
 TG_TOKEN = os.getenv("TG_TOKEN", "")
 
 INDEX = 'Шаг'

@@ -1,7 +1,5 @@
 import datetime
 import gspread
-import os.path
-import time
 from app.settings import CREDENTIALS, SHEET_ID, SCOPES_SHEET
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
@@ -15,15 +13,19 @@ WORKSHEET = SHEET.get_worksheet(0)
 SHEET_RANGE = "Sheet1"
 
 sheet = service.spreadsheets()
-result = sheet.values().get(spreadsheetId=SHEET_ID, range=SHEET_RANGE, majorDimension="COLUMNS",
-                            valueRenderOption="FORMATTED_VALUE").execute()
-merge_list = sheet.get(spreadsheetId=SHEET_ID).execute()['sheets'][0]['merges']
+# result = sheet.values().get(spreadsheetId=SHEET_ID, range=SHEET_RANGE, majorDimension="COLUMNS",
+#                             valueRenderOption="FORMATTED_VALUE").execute()
+# merge_list = sheet.get(spreadsheetId=SHEET_ID).execute()['sheets'][0]['merges']
 
-print(result)
+
+# get merge list
+def get_merge_list():
+    merge_list = sheet.get(spreadsheetId=SHEET_ID).execute()['sheets'][0]['merges']
+    return merge_list
 
 
 # return list of all cells in column
-def get_colomn_cells(column):
+def get_column_cells(column):
     col_list = list(filter(None, WORKSHEET.col_values(column)))
     return col_list[1:]
 
@@ -59,6 +61,7 @@ def get_interval(level, column, **kwargs):
         name_level = 'Пусто'
     value_dict = {'next_col': column+1, 'cell_row': cell_row, 'type_level': type_level,
                   'name_level': name_level}
+    merge_list = kwargs.get('merge_list')
     for merge_cell in merge_list:
         if merge_cell.get('startColumnIndex') < column <= merge_cell.get('endColumnIndex') and \
                 merge_cell.get('startRowIndex') < cell_row <= merge_cell.get('endRowIndex') and \

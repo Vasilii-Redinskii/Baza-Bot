@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from telebot import types
 
 from app.google_drive import download_file_from_gdrive
-from app.google_sheets import get_interval, get_row_cells, get_colomn_cells
+from app.google_sheets import get_interval, get_row_cells, get_column_cells, get_merge_list
 from app.log import log_expect, log_info
 from app.utils import create_button
 from app.settings import INDEX, MAIN_MENU
@@ -26,6 +26,7 @@ class User(Base):
     step_list = Column(PickleType)
     main_list = Column(PickleType)
     menu_list = Column(PickleType)
+    merge_list = Column(PickleType)
 
 
 # Create table
@@ -45,6 +46,7 @@ class BotHandler:
         self.step_list = []
         self.main_list = []
         self.menu_list = []
+        self.merge_list = []
         self.load_state()
 
     # create buttons list
@@ -101,7 +103,7 @@ class BotHandler:
                     markup.add(*self.create_button_list(new_interval.get('interval_values')))
                     self.bot.send_message(call.message.chat.id, new_interval.get('name_level'), reply_markup=markup)
                 else:
-                    self.go_next_level(call, column + 1, row=kwargs.get('row'))
+                    self.go_next_level(call, column + 1, **kwargs)
             elif new_interval.get('type_level') == 'Text':
                 if len(new_interval.get('interval_values')) != 0:
                     if new_interval.get('picture'):
@@ -128,7 +130,8 @@ class BotHandler:
     # Check cells and go to next row
     def go_next_row(self, call, row):
         try:
-            new_interval = get_interval(call.data, self.local_dict.get('next_col'), row=row+1)
+            new_interval = get_interval(call.data, self.local_dict.get('next_col'), row=row+1,
+                                        merge_list=self.merge_list)
             self.local_dict['cell_row'] = row+1
             if len(new_interval.get('interval_values')) != 0:
                 if new_interval.get('picture'):
@@ -150,16 +153,18 @@ class BotHandler:
             log_expect(f"Error when go to the next level: {e}")
             self.bot.send_message(call.message.chat.id, 'Нет информации об объекте, начните сначала', reply_markup=None)
 
-    # Choose activity sends
+    # Choose start section
     def choose_section(self, message):
         # create buttons for menu
         try:
             if self.main_list is None or len(self.main_list) == 0:
-                self.main_list = get_colomn_cells(1)
+                self.main_list = get_column_cells(1)
             if self.menu_list is None or len(self.menu_list) == 0:
                 self.menu_list = get_row_cells(1)
             if self.step_list is not None:
                 self.step_list.clear()
+            if self.merge_list is not None:
+                self.merge_list = get_merge_list()
             button_list = self.create_button_list(self.main_list[1:])
             markup = types.InlineKeyboardMarkup(row_width=2)
             markup.add(*button_list)
@@ -178,6 +183,7 @@ class BotHandler:
             user.step_list = self.step_list
             user.main_list = self.main_list
             user.menu_list = self.menu_list
+            user.merge_list = self.merge_list
             session.commit()
 
     def load_state(self):
@@ -188,6 +194,7 @@ class BotHandler:
             self.step_list = user.step_list if user.step_list else []
             self.main_list = user.main_list if user.main_list else []
             self.menu_list = user.menu_list if user.menu_list else []
+            self.merge_list = user.merge_list if user.merge_list else []
 
     def user_exists(self):
         return session.query(User).filter_by(user_id=self.user_id).first() is not None
