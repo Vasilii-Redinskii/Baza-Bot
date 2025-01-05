@@ -80,7 +80,7 @@ class BotHandler:
         try:
             prev_level_list = []
             for index, step in enumerate(self.step_list):
-                prev_level_list.append(f'{INDEX} {index} - {step.get("name_level")}')
+                prev_level_list.append(f'{INDEX} {index} - {step.get("name_level")[:20]}')
             prev_level_list.append(f'{INDEX} - {MAIN_MENU}')
             markup = types.InlineKeyboardMarkup(row_width=2)
             markup.add(*self.create_button_list(prev_level_list))
