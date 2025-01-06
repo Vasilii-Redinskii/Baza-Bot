@@ -75,7 +75,7 @@ def get_interval(level, column, **kwargs):
             merge_interval = f'{start_cell}:{finish_cell}'
             values_interval = sheet.values().get(spreadsheetId=SHEET_ID, range=merge_interval).execute()
             value_dict['interval'] = [values_interval.get('range'), merge_interval]
-            value_dict['interval_values'] = [x[0] for x in values_interval.get('values')]
+            value_dict['interval_values'] = [x[0] if len(x) != 0 else x for x in values_interval.get('values')]
             return value_dict
 
     value_dict['interval'] = [level_value.get('range'), f'R{cell_row}C{column+1}']

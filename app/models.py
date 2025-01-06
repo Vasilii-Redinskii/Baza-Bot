@@ -55,9 +55,10 @@ class BotHandler:
         try:
             btn_list = []
             for cell in button_list:
-                btn_s = create_button(cell, cell)
-                btn = types.InlineKeyboardButton(btn_s['text'], callback_data=btn_s['key'])
-                btn_list.append(btn)
+                if cell:
+                    btn_s = create_button(cell, cell)
+                    btn = types.InlineKeyboardButton(btn_s['text'], callback_data=btn_s['key'])
+                    btn_list.append(btn)
             return btn_list
         except Exception as e:
             log_expect(f"Error creating list of buttons: {e}")
