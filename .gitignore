@@ -272,3 +272,4 @@ pip-selfcheck.json
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all,venv,dotenv,virtualenv
 token.json
 credentials.json
+users.db

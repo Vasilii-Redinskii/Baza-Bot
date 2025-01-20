@@ -110,9 +110,12 @@ class BotHandler:
                     if new_interval.get('picture'):
                         try:
                             photo_file = open(download_file_from_gdrive(new_interval.get('picture')), 'rb')
-                            self.bot.send_photo(call.message.chat.id, photo=photo_file)
                         except:
-                            pass
+                            photo_file = new_interval.get('picture')
+                        photo_message = self.bot.send_photo(call.message.chat.id, photo=photo_file)
+                        if photo_file != new_interval.get('picture'):
+                            self.bot.send_message(call.message.chat.id, f'id фото {photo_message.photo[0].file_id}',
+                                                  reply_markup=None)
                     markup = types.InlineKeyboardMarkup()
                     markup.add(*self.create_button_list(["Next"]))
                     self.bot.send_message(call.message.chat.id, new_interval.get('interval_values')[0],
@@ -138,9 +141,12 @@ class BotHandler:
                 if new_interval.get('picture'):
                     try:
                         photo_file = open(download_file_from_gdrive(new_interval.get('picture')), 'rb')
-                        self.bot.send_photo(call.message.chat.id, photo=photo_file)
                     except:
-                        pass
+                        photo_file = new_interval.get('picture')
+                    photo_message = self.bot.send_photo(call.message.chat.id, photo=photo_file)
+                    if photo_file != new_interval.get('picture'):
+                        self.bot.send_message(call.message.chat.id, f'id фото {photo_message.photo[0].file_id}',
+                                              reply_markup=None)
                 markup = types.InlineKeyboardMarkup()
                 markup.add(*self.create_button_list(["Next"]))
                 self.bot.send_message(call.message.chat.id, new_interval.get('interval_values')[0],

@@ -8,20 +8,19 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 CREDENTIALS = {
   "type": "service_account",
-  "project_id": "bot-table-project",
+  "project_id": os.getenv("PROJECT_ID", ""),
   "private_key_id": os.getenv("PRIVATE_KEY_ID", ""),
-  "private_key": os.getenv('PRIVATE_KEY', '').replace('\\n', '\n'),
-  "client_email": "bot-table@bot-table-project.iam.gserviceaccount.com",
+  "private_key": os.getenv("PRIVATE_KEY", '').replace('\\n', '\n'),
+  "client_email": os.getenv("CLIENT_EMAIL", ""),
   "client_id": os.getenv("CLIENT_ID", ""),
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
   "token_uri": "https://oauth2.googleapis.com/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bot-table%40bot-table-project.iam.gserviceaccount.com",
+  "client_x509_cert_url": os.getenv("CLIENT_SER_URL", ""),
 
 }
 
 
-EMAIL = os.getenv("EMAIL", "")
 FOLDER_ID = os.getenv("FOLDER_ID", "")
 HEROKU_URL = os.getenv("HEROKU_URL", "")
 PASSWORD = os.getenv("PASSWORD", "")
