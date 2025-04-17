@@ -22,14 +22,16 @@ CREDENTIALS = {
 
 
 FOLDER_ID = os.getenv("FOLDER_ID", "")
+FOLDER_WRITE_ID = os.getenv("FOLDER_WRITE_ID", "")
 HEROKU_URL = os.getenv("HEROKU_URL", "")
 PASSWORD = os.getenv("PASSWORD", "")
+PICTURE_LINK = 'https://drive.google.com/file/d/'
 SCOPES = ['https://www.googleapis.com/auth/drive']
 SCOPES_SHEET = ['https://www.googleapis.com/auth/spreadsheets']
 SHEET_ID = os.getenv("SHEET_ID", "")
-SHEET_URL = os.getenv("SHEET_URL", "")
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'app.db')
 TG_TOKEN = os.getenv("TG_TOKEN", "")
+ADMIN_ID = int(os.getenv("ADMIN_ID", ""))
 
 INDEX = 'Шаг'
 MAIN_MENU = 'Основное меню'

@@ -6,7 +6,7 @@ from telebot import types
 
 from app.log import log_expect, log_info
 from app.models import BotHandler
-from app.settings import TG_TOKEN, SHEET_URL, FOLDER_ID, INDEX, MAIN_MENU
+from app.settings import TG_TOKEN, FOLDER_ID, INDEX, MAIN_MENU, ADMIN_ID
 from app.utils import create_button
 
 bot = telebot.TeleBot(TG_TOKEN, parse_mode=None)
@@ -67,32 +67,26 @@ def send_welcome(message):
 async def handle_welcome(message):
     try:
         user_id = message.from_user.id
-        username = message.from_user.username
-        first_name = message.from_user.first_name
-        last_name = message.from_user.last_name
-
         bot_handler = BotHandler(user_id, bot)
-
-        if not bot_handler.user_exists():
-            bot_handler.add_user(username, first_name, last_name)
-
-        img = open('hello.png', 'rb')
-        bot.send_sticker(message.chat.id, img)
+        bot_handler.check_user(message)
 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
 
         btn1 = types.KeyboardButton(BTN_MAIN['text'])
-        # btn2 = types.KeyboardButton(BTN_UPDATE['text'])
+        btn2 = types.KeyboardButton(BTN_UPDATE['text'])
         btn3 = types.KeyboardButton(BTN_CANCEL['text'])
         # btn4 = types.KeyboardButton(BTN_ACCEPT['text'])
         #
         # markup.add(btn1, btn2, btn3, btn4)
-        markup.add(btn1, btn3)
 
-        bot.reply_to(message, f'Привет! Я бот - твой помощник. \n\n'
-                              f'Для того чтобы начать с главного меню, нажми кнопку "📝 Начало".\n\n'
-                              f'Вернуться на предыдущий раздел или отменить выбор, нажми кнопку "🔙 Назад".\n\n',
-                              reply_markup=markup)
+        if user_id == ADMIN_ID:
+            markup.add(btn1, btn2, btn3)
+        else:
+            markup.add(btn1, btn3)
+
+        img = open('hello.png', 'rb')
+        bot.send_sticker(message.chat.id, img)
+        bot.reply_to(message, bot_handler.welcome_message(), reply_markup=markup)
 
     except Exception as e:
         log_expect(f"Error sending welcome message: {e}")
@@ -108,6 +102,7 @@ async def handle_text(message):
     try:
         user_id = message.from_user.id
         bot_handler = BotHandler(user_id, bot)
+        bot_handler.check_user(message)
         # buttons for main list
         if message.text == BTN_MAIN['text']:
             if bot_handler.main_list is not None:
@@ -122,5 +117,11 @@ async def handle_text(message):
             else:
                 bot.reply_to(message, f'Для того чтобы начать с главного меню, нажми кнопку "📝 Начало".\n\n',
                                       reply_markup=None)
+        # update work table from maim table
+        elif message.text == BTN_UPDATE['text']:
+            if user_id == ADMIN_ID:
+                bot_handler.update_table()
+                bot.send_message(message.chat.id, 'Таблица обновлена', reply_markup=None)
+
     except Exception as e:
         log_expect(f"Error text message: {e}")
