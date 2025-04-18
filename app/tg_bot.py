@@ -84,9 +84,7 @@ async def handle_welcome(message):
         else:
             markup.add(btn1, btn3)
 
-        img = open('hello.png', 'rb')
-        bot.send_sticker(message.chat.id, img)
-        bot.reply_to(message, bot_handler.welcome_message(), reply_markup=markup)
+        bot_handler.welcome_message(message)
 
     except Exception as e:
         log_expect(f"Error sending welcome message: {e}")

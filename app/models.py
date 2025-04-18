@@ -305,12 +305,27 @@ class BotHandler:
             session.rollback()
             log_expect(f"Transaction failed: {e}")
 
-    @staticmethod
-    def welcome_message():
+    def welcome_message(self, message):
         wellcome_table = session.query(SettingsTable).first()
         wellcome_text = wellcome_table.wellcome_text if wellcome_table.wellcome_text \
             else f'Привет! Я бот - твой помощник. \n\n ' \
                  f'Для того чтобы начать с главного меню, нажми кнопку "📝 Начало".\n\n ' \
                  f'Вернуться на предыдущий раздел или отменить выбор, нажми кнопку "🔙 Назад".\n\n'
+        try:
+            if wellcome_table.wellcome_picture:
+                self.bot.send_photo(message.chat.id, photo=wellcome_table.wellcome_picture)
 
-        return wellcome_text
+            elif wellcome_table.wellcome_picture_link:
+                photo_file = open(download_file_from_gdrive(wellcome_table.wellcome_picture_link), 'rb')
+                photo_message = self.bot.send_photo(message.chat.id, photo=photo_file)
+                # TODO save id picture to sell
+                # sheet_id = session.query(MainTable).first().table_id
+                # cell = f'R{self.local_dict.get("cell_row")}C{self.local_dict.get("next_col") + 3}'
+                # write_cell(sheet_id, photo_message.photo[0].file_id, cell)
+                self.bot.reply_to(message, photo_message.photo[0].file_id, reply_markup=None)
+
+        except Exception as e:
+            log_expect(f"Error transition to current level: {e}")
+
+        self.bot.send_message(message.chat.id, wellcome_text, reply_markup=None)
+        return
