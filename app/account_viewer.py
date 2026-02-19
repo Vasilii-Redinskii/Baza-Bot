@@ -1,6 +1,7 @@
 from telethon import TelegramClient
 import datetime
-from app.settings import API_ID, API_HASH, PHONE_NUMBER, SHEET_ID
+# Для просмотра всех групп со своего аккаунта из тг бота - раскоммитеть
+# from app.settings import API_ID, API_HASH, PHONE_NUMBER, SHEET_ID
 from app.google_sheets import get_title_of_sheet, get_settings_dict, get_all_cels, write_cell
 from app.log import log_expect
 

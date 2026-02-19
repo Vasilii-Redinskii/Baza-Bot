@@ -81,12 +81,14 @@ async def handle_welcome(message):
         btn1 = types.KeyboardButton(BTN_MAIN['text'])
         btn2 = types.KeyboardButton(BTN_UPDATE['text'])
         btn3 = types.KeyboardButton(BTN_CANCEL['text'])
-        btn4 = types.KeyboardButton(BTN_ACC_VIEW['text'])
-        btn5 = types.KeyboardButton(BTN_ACC_DISCONNECT['text'])
-        # markup.add(btn1, btn2, btn3, btn4)
+        # Для просмотра всех групп со своего аккаунта из тг бота - раскоммитеть
+        # btn4 = types.KeyboardButton(BTN_ACC_VIEW['text'])
+        # btn5 = types.KeyboardButton(BTN_ACC_DISCONNECT['text'])
 
         if user_id == ADMIN_ID:
-            markup.add(btn1, btn2, btn3, btn4, btn5)
+            markup.add(btn1, btn2, btn3)
+            # Для просмотра всех групп со своего аккаунта из тг бота - раскоммитеть
+            # markup.add(btn1, btn2, btn3, btn4, btn5)
         else:
             markup.add(btn1, btn3)
 
@@ -130,30 +132,31 @@ async def handle_text(message):
                 bot_handler.update_table()
                 bot.send_message(message.chat.id, 'Таблица обновлена', reply_markup=None)
 
+        # Для просмотра всех групп со своего аккаунта из тг бота - раскоммитеть
         # view accounts from Google Sheet
-        elif message.text == BTN_ACC_VIEW['text']:
-            if user_id == ADMIN_ID:
-                table_id = bot_handler.get_table_id()
-                if not is_view_account_running:
-                    is_view_account_running = True
-                    try:
-                        # Асинхронно вызываем функцию view_account
-                        await view_account(table_id)
-                        bot.send_message(message.chat.id, 'Просмотр аккаунтов завершен.', reply_markup=None)
-                    except Exception as e:
-                        log_expect(f"Error during view_account execution: {e}")
-                        bot.send_message(message.chat.id,
-                                         'Произошла ошибка при просмотре аккаунтов.', reply_markup=None)
-                    finally:
-                        is_view_account_running = False
-                else:
-                    bot.send_message(message.chat.id,
-                                     'Просмотр аккаунтов уже запущен. Пожалуйста, дождитесь завершения.',
-                                     reply_markup=None)
-        elif message.text == BTN_ACC_DISCONNECT['text']:
-            if user_id == ADMIN_ID:
-                await disconnect_client()
-                bot.send_message(message.chat.id, 'Соединение с клиентом Telethon разорвано.', reply_markup=None)
+        # elif message.text == BTN_ACC_VIEW['text']:
+        #     if user_id == ADMIN_ID:
+        #         table_id = bot_handler.get_table_id()
+        #         if not is_view_account_running:
+        #             is_view_account_running = True
+        #             try:
+        #                 # Асинхронно вызываем функцию view_account
+        #                 await view_account(table_id)
+        #                 bot.send_message(message.chat.id, 'Просмотр аккаунтов завершен.', reply_markup=None)
+        #             except Exception as e:
+        #                 log_expect(f"Error during view_account execution: {e}")
+        #                 bot.send_message(message.chat.id,
+        #                                  'Произошла ошибка при просмотре аккаунтов.', reply_markup=None)
+        #             finally:
+        #                 is_view_account_running = False
+        #         else:
+        #             bot.send_message(message.chat.id,
+        #                              'Просмотр аккаунтов уже запущен. Пожалуйста, дождитесь завершения.',
+        #                              reply_markup=None)
+        # elif message.text == BTN_ACC_DISCONNECT['text']:
+        #     if user_id == ADMIN_ID:
+        #         await disconnect_client()
+        #         bot.send_message(message.chat.id, 'Соединение с клиентом Telethon разорвано.', reply_markup=None)
 
         # log info from message
         else:
