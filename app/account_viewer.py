@@ -6,9 +6,13 @@ from app.google_sheets import get_title_of_sheet, get_settings_dict, get_all_cel
 from app.log import log_expect
 
 # Your API credentials and phrases
-api_id = API_ID
-api_hash = API_HASH
-phone_number = PHONE_NUMBER
+# Для просмотра всех групп со своего аккаунта из тг бота - раскоммитеть
+# api_id = API_ID
+# api_hash = API_HASH
+# phone_number = PHONE_NUMBER
+api_id = "API_ID"
+api_hash = "API_HASH"
+phone_number = "PHONE_NUMBER"
 phrases = ["переезд", "аэропорт", "трансфер"]
 
 
