@@ -42,7 +42,7 @@ def get_column_cells(sheet_id, column):
     return col_list[1:]
 
 
-# return list of all cells in column
+# return list of all cells in raw
 def get_row_cells(sheet_id, row):
     wsheet = SERVICE.open_by_key(sheet_id).get_worksheet(0)
     row_list = list(filter(None, wsheet.row_values(row)))
@@ -52,15 +52,14 @@ def get_row_cells(sheet_id, row):
     return final_list
 
 
-def get_settings_dict(sheet_id, name):
-    sheet_list = get_all_cels(sheet_id, name)
+def get_settings_dict(sheet_list, key_column=0, item_column=1):
     settings_dict = {}
     for value in sheet_list.get('valueRanges')[0].get('values'):
-        if len(value) > 1:
+        if value[key_column]:
             try:
-                settings_dict[value[0]] = value[1]
+                settings_dict[value[key_column]] = value[item_column]
             except:
-                pass
+                settings_dict[value[key_column]] = ''
     return settings_dict
 
 

@@ -1,11 +1,23 @@
 import logging
+import os
+import sys
 
 from datetime import date
 
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+LOGS_DIR = os.path.join(PROJECT_ROOT, '..', 'static', 'logs')
+LOG_FILE_PATH = os.path.join(LOGS_DIR, 'py_log.log')
 
-src = 'static/logs/'
-logging.basicConfig(level=logging.INFO, filename=f"{src}py_log.log", filemode="w",
-                    format="%(asctime)s %(levelname)s %(message)s")
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
+logging.basicConfig(
+    level=logging.INFO,
+    filename=LOG_FILE_PATH,
+    filemode="w",
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    encoding="utf-8"
+)
 
 
 def log_expect(err):

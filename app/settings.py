@@ -20,12 +20,14 @@ CREDENTIALS = {
 
 }
 
-
+API_ID = int(os.getenv("API_ID", ""))
+API_HASH = os.getenv("API_HASH", "")
 FOLDER_ID = os.getenv("FOLDER_ID", "")
 FOLDER_WRITE_ID = os.getenv("FOLDER_WRITE_ID", "")
 HEROKU_URL = os.getenv("HEROKU_URL", "")
 PASSWORD = os.getenv("PASSWORD", "")
 PICTURE_LINK = 'https://drive.google.com/file/d/'
+PHONE_NUMBER = os.getenv("PHONE_NUMBER", "")
 SCOPES = ['https://www.googleapis.com/auth/drive']
 SCOPES_SHEET = ['https://www.googleapis.com/auth/spreadsheets']
 SHEET_ID = os.getenv("SHEET_ID", "")

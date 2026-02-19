@@ -5,7 +5,7 @@ from telebot import types
 
 from app.google_drive import download_file_from_gdrive, copy_table_from_drive_to_folder
 from app.google_sheets import get_interval, get_row_cells, get_column_cells, get_merge_list, write_cell,\
-    get_settings_dict, get_title_of_sheet
+    get_settings_dict, get_title_of_sheet, get_all_cels
 from app.log import log_expect, log_info
 from app.utils import create_button
 from app.settings import INDEX, MAIN_MENU, SHEET_ID, FOLDER_WRITE_ID, PICTURE_LINK
@@ -13,6 +13,14 @@ from app.settings import INDEX, MAIN_MENU, SHEET_ID, FOLDER_WRITE_ID, PICTURE_LI
 # create DB and engine
 engine = create_engine('sqlite:///users.db')
 Base = declarative_base()
+
+# Create table
+Base.metadata.create_all(engine)
+
+
+# Create session
+Session = sessionmaker(bind=engine)
+session = Session()
 
 
 # Main table model
@@ -63,13 +71,7 @@ class User(Base):
     step_list = Column(PickleType)
 
 
-# Create table
-Base.metadata.create_all(engine)
-
-
-# Create session
-Session = sessionmaker(bind=engine)
-session = Session()
+sheet_id = session.query(MainTable).first().table_id
 
 
 class BotHandler:
@@ -101,7 +103,6 @@ class BotHandler:
                     photo_file = value.get('picture')
                 photo_message = self.bot.send_photo(chat_id, photo=photo_file)
                 if photo_file != value.get('picture'):
-                    sheet_id = session.query(MainTable).first().table_id
                     cell = f'R{self.local_dict.get("cell_row")}C{self.local_dict.get("next_col")+3}'
                     write_cell(sheet_id, photo_message.photo[0].file_id, cell)
             markup = types.InlineKeyboardMarkup()
@@ -160,7 +161,6 @@ class BotHandler:
     # Check cells and go to next level
     def go_next_level(self, call, column=1, **kwargs):
         try:
-            sheet_id = session.query(MainTable).first().table_id
             new_interval = get_interval(sheet_id, call.data, column, **kwargs)
             if new_interval.get('type_level') == 'Level':
                 self.local_dict = new_interval
@@ -184,7 +184,6 @@ class BotHandler:
     # Check cells and go to next row
     def go_next_row(self, call, row):
         try:
-            sheet_id = session.query(MainTable).first().table_id
             new_interval = get_interval(sheet_id, call.data, self.local_dict.get('next_col'), row=row+1,
                                         merge_list=self.merge_list)
             self.local_dict['cell_row'] = row+1
@@ -197,7 +196,6 @@ class BotHandler:
 
     # Choose start section
     def choose_section(self, message):
-        sheet_id = session.query(MainTable).first().table_id
         # create buttons for menu
         try:
             if self.main_list is None or len(self.main_list) == 0:
@@ -261,6 +259,11 @@ class BotHandler:
         pass
 
     @staticmethod
+    def get_table_id():
+        table = session.query(MainTable).first()
+        return table.table_id if table else None
+
+    @staticmethod
     def update_table():
         id_copied_table = copy_table_from_drive_to_folder(SHEET_ID, FOLDER_WRITE_ID)
         table = session.query(MainTable).first()
@@ -283,7 +286,12 @@ class BotHandler:
         sheet_name = 'Settings'
         settings_dict = {}
         try:
-            settings_dict = get_settings_dict(id_copied_table, sheet_name)
+            sheet_list = get_all_cels(id_copied_table, sheet_name)
+            settings_dict = get_settings_dict(sheet_list)
+            for values in sheet_list.get('valueRanges')[0].get('values'):
+                if values[0] == 'sheet_id':
+                    cell = f'{sheet_name}!R{sheet_list.get("valueRanges")[0].get("values").index(values)+1}C{2}'
+                    write_cell(id_copied_table, str(id_copied_table), cell)
         except Exception as e:
             log_expect(f"Error selecting partition: {e}")
             self.bot.send_message(call.message.chat.id, f'Нет информации о листе "{sheet_name}", добавьте лист или '
@@ -305,7 +313,7 @@ class BotHandler:
             session.rollback()
             log_expect(f"Transaction failed: {e}")
 
-    def welcome_message(self, message):
+    def welcome_message(self, message, markup=None):
         wellcome_table = session.query(SettingsTable).first()
         wellcome_text = wellcome_table.wellcome_text if wellcome_table.wellcome_text \
             else f'Привет! Я бот - твой помощник. \n\n ' \
@@ -322,10 +330,10 @@ class BotHandler:
                 # sheet_id = session.query(MainTable).first().table_id
                 # cell = f'R{self.local_dict.get("cell_row")}C{self.local_dict.get("next_col") + 3}'
                 # write_cell(sheet_id, photo_message.photo[0].file_id, cell)
-                self.bot.reply_to(message, photo_message.photo[0].file_id, reply_markup=None)
+                self.bot.reply_to(message, photo_message.photo[0].file_id, reply_markup=markup)
 
         except Exception as e:
             log_expect(f"Error transition to current level: {e}")
 
-        self.bot.send_message(message.chat.id, wellcome_text, reply_markup=None)
+        self.bot.send_message(message.chat.id, wellcome_text, reply_markup=markup)
         return
